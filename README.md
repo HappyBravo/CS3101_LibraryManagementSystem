@@ -2,8 +2,12 @@
 It's a basic Library Management System written in <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="20" height="20"/>.
 <hr>
 
-<h2>The Program shall do the following :</h2>
-There will be two types of uses:
+<h2>There will be two types of users profile :</h2>
+<ul>
+    <li><h4>Admin</h4></li>
+    <li><h4>User</h4></li>
+</ul>
+<h2>The Program shall do the following functions :</h2>
 <ul>
     <li><h4>By Admin</h4></li>
         <ul>
@@ -11,7 +15,7 @@ There will be two types of uses:
             <li>Delete Books</li>
             <li>Update Books' details</li>
         </ul>
-    <li><h4>By Users</h4></li>
+    <li><h4>By User</h4></li>
     <ul>
         <li>View Available Books</li>
         <li>Search Books</li>
@@ -20,4 +24,4 @@ There will be two types of uses:
     </ul>
 </ul>
 <br>
-The Admin can also do all things which User do.
+The Admin can do all things which User do.
