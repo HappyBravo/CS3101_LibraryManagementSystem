@@ -31,6 +31,7 @@ typedef struct
     char username[MAX_SIZE_USER_NAME];
     char password[MAX_SIZE_PASSWORD];
     char type[MAX_SIZE_USER_TYPE];
+    char member[MAX_SIZE_USER_TYPE];
 } login_FileHeader;
 
 typedef struct
@@ -38,10 +39,13 @@ typedef struct
     unsigned int books_id;
     char bookName[MAX_BOOK_NAME];
     char authorName[MAX_AUTHOR_NAME];
+    int book_stock;
 } BookInfo;
 
 char temp; // used for keeping some memory for "Click here to continue ..."
+
 unsigned char u_type[MAX_SIZE_USER_TYPE] = {0}; // for communication between Main Menu and Login
+unsigned char u_member[MAX_SIZE_USER_TYPE] = {0};
 
 
 //
@@ -165,7 +169,7 @@ int isBookPresent(const int id)
     }
     while(!feof(fp))
     {
-        fscanf(fp, "%u\n%[^\n]%*c%[^\n]%*c\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName );
+        fscanf(fp, "%u\t%[^\t]%*c%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName, &addBookInfo.book_stock);
         //printf("\n- - - - \nID - %d,\nName - %s,\nAuthor - %s\n- - - - ", addBookInfo.books_id,addBookInfo.bookName, addBookInfo.authorName);
         
         if(addBookInfo.books_id == id)
@@ -230,7 +234,7 @@ void searchBooks()
         //
         //We can write the above statements in single line.
         //
-        fscanf(fp, "%u\n%[^\n]%*c%[^\n]%*c\n", &searchBookInfo.books_id, searchBookInfo.bookName, searchBookInfo.authorName);
+        fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &searchBookInfo.books_id, searchBookInfo.bookName, searchBookInfo.authorName, &searchBookInfo.book_stock);
 
         if(!strcmp(searchBookInfo.bookName, bookName))
         {
@@ -243,6 +247,7 @@ void searchBooks()
         printf("\n\t\t\tBook id = %u", searchBookInfo.books_id);
         printf("\n\t\t\tBook name = %s", searchBookInfo.bookName);
         printf("\n\t\t\tBook authorName = %s", searchBookInfo.authorName);
+        printf("\n\t\t\tIn Stock = %d", searchBookInfo.book_stock);
     }
     else
     {
@@ -277,11 +282,12 @@ void viewBooks()
 
     while(!feof(fp))
     {
-        fscanf(fp, "%u\n%[^\n]%*c%[^\n]%*c\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName );
+        fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName, &addBookInfo.book_stock);
         printf("\n\t\t\t%d.)", countBook);
         printf("\n\t\t\t\tBook id = %u", addBookInfo.books_id);
         printf("\n\t\t\t\tBook name = %s", addBookInfo.bookName);
-        printf("\n\t\t\t\tBook authorName = %s\n", addBookInfo.authorName);
+        printf("\n\t\t\t\tBook authorName = %s", addBookInfo.authorName);
+        printf("\n\t\t\t\tBooks available = %d\n", addBookInfo.book_stock);
         found = 1;
         ++countBook;
     }
@@ -347,11 +353,11 @@ void deleteBooks()
 
     while(!feof(fp))
     {
-        fscanf(fp, "%u\n%[^\n]%*c%[^\n]%*c\n", &delBookInfo.books_id, delBookInfo.bookName, delBookInfo.authorName);
+        fscanf(fp, "%u\t%[^\t]%*c%[^\t]%*c\t%d\n", &delBookInfo.books_id, delBookInfo.bookName, delBookInfo.authorName, &delBookInfo.book_stock);
         
         if(delBookInfo.books_id != bookDelete)
         {
-            fprintf(tmpFp, "%u\n%s\n%s\n", delBookInfo.books_id, delBookInfo.bookName, delBookInfo.authorName);
+            fprintf(tmpFp, "%u\t%s\t%s\t%d\n", delBookInfo.books_id, delBookInfo.bookName, delBookInfo.authorName, delBookInfo.book_stock);
         }
         else
         {
@@ -466,6 +472,9 @@ void addBook()
         }
         else
         {
+            printf("\n\t\t\tEnter number of books in stock : ");
+            fflush(stdin);
+            scanf("%d", &addBookInfo.book_stock);
             count = 0;
         }
     }
@@ -475,7 +484,7 @@ void addBook()
     {
         // count < 3 means that we have entered all values correctly and are valid.
         headerAddBookPage();
-        fprintf(fp, "\n%u\n%s\n%s", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName);
+        fprintf(fp, "%u\t%s\t%s\t%d", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName, addBookInfo.book_stock);
         printf("\n\t\t\tRecord added successfully.....");
     }
     else
@@ -600,21 +609,24 @@ void updateBook()
             }
             else
             {
+                printf("\n\t\t\tEnter number of books in stock : ");
+                fflush(stdin);
+                scanf("%d", &updateBookInfo.book_stock);
                 count = 0;
             }
         }while(!status);
 
         while(!feof(fp))
         {
-            fscanf(fp, "%u\n%[^\n]%*c%[^\n]%*c\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName);
+            fscanf(fp, "%u\t%[^\t]%*c%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName, &addBookInfo.book_stock);
 
             if(addBookInfo.books_id != updateBookInfo.books_id)
             {
-                fprintf(tmpFp, "%u\n%s\n%s\n", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName);
+                fprintf(tmpFp, "%u\t%s\t%s\t%d\n", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName, addBookInfo.book_stock);
             }
             else
             {
-                fprintf(tmpFp, "%u\n%s\n%s\n", updateBookInfo.books_id, updateBookInfo.bookName, updateBookInfo.authorName);
+                fprintf(tmpFp, "%u\t%s\t%s\t%d\n", updateBookInfo.books_id, updateBookInfo.bookName, updateBookInfo.authorName, updateBookInfo.book_stock);
                 found = 1;
             }
         }      
@@ -765,7 +777,7 @@ void login()
         // else try 3 times after which we close the program.
         while(!feof(fp))
         {
-            fscanf(fp, "%s %s %s", login_info.username, login_info.password, login_info.type);
+            fscanf(fp, "%s %s %s %s", login_info.username, login_info.password, login_info.type, login_info.member);
 
             if((!strcmp(userName,login_info.username)) && (!strcmp(password, login_info.password)))
             {
