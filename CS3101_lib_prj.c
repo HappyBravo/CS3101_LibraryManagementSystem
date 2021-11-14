@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
+
 
 #define MAX_SIZE_USER_NAME 30
 #define MAX_SIZE_PASSWORD  20
@@ -16,15 +18,17 @@
 #define BOOK_FILE_NAME "books_info.txt"
 //#define BOOK_FILE_HEADER_SIZE sizeof("books_info.txt")
 
-/*
-// MAY BE USED IN BORROW / RETURN FUNCTION
+#define REGISTER_FILE_NAME "register_book.txt"
+
+//
+/* - - - - GLOBAL VARIABLES : START - - - - - */
+//
 typedef struct
 {
     int yyyy;
     int mm;
     int dd;
 } Date;
-*/
 
 typedef struct
 {
@@ -42,10 +46,23 @@ typedef struct
     int book_stock;
 } BookInfo;
 
+typedef struct
+{
+    unsigned int books_id;
+    char username[MAX_SIZE_USER_NAME];
+    Date i_date;
+    Date r_date;
+} RegisterInfo;
+
 char temp; // used for keeping some memory for "Click here to continue ..."
 
+unsigned char u[MAX_USER_NAME] = {0};
 unsigned char u_type[MAX_SIZE_USER_TYPE] = {0}; // for communication between Main Menu and Login
 unsigned char u_member[MAX_SIZE_USER_TYPE] = {0};
+
+//
+/* - - - - GLOBAL VARIABLES : END - - - - - */
+//
 
 
 //
@@ -153,7 +170,7 @@ void headerAddBookPage()
     }
 
 // Check if book is already present
-int isBookPresent(const int id)
+int isBookPresent(int id)
 {
     int present = 0;
     char bookName[MAX_BOOK_NAME] = {0};
@@ -182,6 +199,212 @@ int isBookPresent(const int id)
     
     return present;
 }
+
+// Check if Book is already issued
+int isBookIssued(int book)
+{
+    unsigned int issued = 0;
+    RegisterInfo Reg_info = {0};
+    FILE *f_checkBookIssued_p = NULL;
+
+    f_checkBookIssued_p = fopen(REGISTER_FILE_NAME, "r");
+    if(f_checkBookIssued_p == NULL)
+    {
+        printf("\n\t\t\tFile is not opened\n");
+        exit(1);
+    }
+
+    // check Library Register if the user has already borrowed the book previously
+    while(!feof(f_checkBookIssued_p))
+    {
+        fscanf(f_checkBookIssued_p, "%d\t%[^\t]%*c\t%d/%d/%d\t%d/%d/%d\n", &Reg_info.books_id, Reg_info.username, &Reg_info.i_date.dd, &Reg_info.i_date.mm, &Reg_info.i_date.yyyy, &Reg_info.r_date.dd, &Reg_info.r_date.mm, &Reg_info.r_date.yyyy);
+        
+        //printf("book : %u\nu_id : %c\nIssue : %02d/%02d/%d\nReturn : %02d/%02d/%d\n", Reg_info.books_id, Reg_info.username, Reg_info.i_date.dd, Reg_info.i_date.mm, Reg_info.i_date.yyyy, Reg_info.r_date.dd, Reg_info.r_date.mm, Reg_info.r_date.yyyy);
+        
+        if((Reg_info.books_id == book) && (strcmp(Reg_info.username, u) == 0))
+        {
+            // if the user has previously borrowed the book, we will not issue it again.
+            issued = 1;
+            break;
+        }
+    }
+    fclose(f_checkBookIssued_p);
+    return issued;
+}
+
+// update book stock if the book is issued to a user
+void book_Issued(int book)
+{
+    int found = 0;
+    BookInfo addBookInfo = {0};
+
+    FILE *fp = NULL; // original file
+    FILE *tmpFp = NULL; // temporary file
+
+    fp = fopen(BOOK_FILE_NAME,"r"); // opened original file in read mode
+    if(fp == NULL)
+    {
+        printf("File is not opened\n");
+        exit(1);
+    }
+
+    tmpFp = fopen("tmp.txt","w"); // made a temporary file in write mode
+    if(tmpFp == NULL)
+    {
+        fclose(fp);
+        printf("File is not opened\n");
+        exit(1);
+    }
+
+    while(!feof(fp))
+        {
+            // we will take the necessary details and store them in some varibale
+            // then we copy the data from original file to temporary file
+            // if the book id in original file matches with the book id to be issued,
+            // we reduce the stock by 1 as 1 book is being issued to a user,
+            // then, we copy the data stored in the variable to the temporary file
+            // after copying, we delete original file, and rename it.
+
+            fscanf(fp, "%u\t%[^\t]%*c%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName, addBookInfo.authorName, &addBookInfo.book_stock);
+
+            if(addBookInfo.books_id == book)
+            {
+                --addBookInfo.book_stock;
+                found = 1;
+            }
+
+            fprintf(tmpFp, "%u\t%s\t%s\t%d\n", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName, addBookInfo.book_stock);
+        }
+    if (found)
+    {
+        //printf("\n\t\t\tRecord updated successfully.....");
+        fclose(fp);
+        fclose(tmpFp);
+        remove(BOOK_FILE_NAME);
+        rename("tmp.txt", BOOK_FILE_NAME);
+    } 
+
+}
+
+// Some Date related Functions
+Date cal_date_diff(Date s, Date e)
+{
+    //printf("\nStart : %d, %d, %d", s.dd, s.mm, s.yyyy); // checking s
+    //printf("\nEnd : %d, %d, %d", e.dd, e.mm, e.yyyy); // checking e
+
+    Date diff = {0};
+
+    if(e.dd < s.dd)
+    {      
+        // adding days from february
+        if (e.mm == 3)
+        {
+            //  checking if the year is a leap year
+            if ((e.yyyy % 4 == 0 && e.yyyy % 100 != 0) || (e.yyyy % 400 == 0)) 
+            {
+                e.dd += 29;
+            }
+
+            else
+            {
+                e.dd += 28;
+            }                        
+        }
+
+        // adding days from April or June or September or November
+        else if (e.mm == 5 || e.mm == 7 || e.mm == 10 || e.mm == 12) 
+        {
+            e.dd += 30; 
+        }
+
+        // adding days from Jan or Mar or May or July or Aug or Oct or Dec
+        else
+        {
+            e.dd += 31;
+        }
+
+        e.mm = e.mm - 1;
+    }
+
+    if (e.mm < s.mm)
+    {
+        // adding months from previous year
+        e.mm += 12;
+        e.yyyy -= 1;
+    }       
+
+    // finding difference
+    diff.dd = e.dd - s.dd;
+    diff.mm = e.mm - s.mm;
+    diff.yyyy = e.yyyy - s.yyyy;
+
+    return diff;
+}
+
+int maxDateOfMonth(int m, int y)
+{
+    int d_max = 31;
+
+    if(m == 2)
+    {
+        // - - - - for February - - - -
+        d_max = 28;
+
+        if((y%4 == 0 || y%100 == 0) && y%400 != 0)
+            d_max = 29;
+    }
+    else if(m == 4 || m == 6 || m == 9 || m == 11)
+    {
+        // - - - - for months with 30 days - - - -
+        d_max = 30;
+    }
+
+    return d_max;
+}
+
+Date returning_date(Date start, int period)
+{
+    Date end;
+    //printf("\nToday's date: %02i/%02i/%i\n", start.mm, start.dd, start.yyyy); // checking
+
+    // initializing Returning dates
+    end.dd = start.dd + period;
+    end.mm = start.mm;
+    end.yyyy = start.yyyy;
+
+    int max_date = maxDateOfMonth(start.mm, start.yyyy);
+    
+    if(end.dd > max_date)
+    {
+        end.mm += 1;
+        end.dd = end.dd - max_date;
+    }
+
+    if (end.mm > 12)
+    {
+        end.mm = 1;
+        end.yyyy += 1;
+    }
+    //printf("\nReturn's date: %02i/%02i/%i\n", end.mm, end.dd, end.yyyy);
+    
+    return end;
+}
+
+Date today_date()
+{
+    Date start_date;
+    time_t t;
+    time(&t);
+    struct tm *now = localtime(&t);
+
+    // initializing current date
+    start_date.mm = now->tm_mon + 1;
+    start_date.dd = now->tm_mday;
+    start_date.yyyy = now->tm_year + 1900;
+
+    return start_date;
+}
+
 
 /* - - - - - - - - - - - - - - - - - - - - - -*/
 /* - - - - - HELPING FUNCTIONS : END - - - - -*/
@@ -248,6 +471,13 @@ void searchBooks()
         printf("\n\t\t\tBook name = %s", searchBookInfo.bookName);
         printf("\n\t\t\tBook authorName = %s", searchBookInfo.authorName);
         printf("\n\t\t\tIn Stock = %d", searchBookInfo.book_stock);
+
+        if((searchBookInfo.book_stock<3) && (!(strcmp(u_member, "stud"))))
+        {
+            printf("\n\n\t\t\t-----------------------------------------");
+            printf("\n\t\t\tThis book is not available for borrowing.");
+            printf("\n\t\t\t-----------------------------------------");
+        }
     }
     else
     {
@@ -302,10 +532,156 @@ void viewBooks()
     scanf("%c", &temp);
 }
 
-// Borrow Book (to do)
+// Borrow Book
 void borrowBook()
 {
-    /* work in progress */
+    int count = 0;
+    int status = 0;
+    int flag = 0;
+    char choice = 'N';
+    unsigned int bookid = 0;
+
+    Date issue_date, return_date;
+    int period = 7; // should be less than 28 or 29
+    
+    BookInfo bookInfo = {0};
+    BookInfo bookReading ={0};
+    FILE *f_reg_book = NULL;
+    FILE *f_book = NULL; 
+
+    f_reg_book = fopen(REGISTER_FILE_NAME, "a"); // opened file in append mode for adding new issues
+    if(f_reg_book == NULL)
+    {
+        printf("File is not opened\n");
+        scanf("%c", temp);
+        exit(1);
+    }
+
+    do
+    {
+        if (count>3)
+        {
+            break;
+        }
+        headMessage("BORROW BOOKS");
+
+        printf("\n\t\t\tBook ID NO  = ");
+        fflush(stdin);
+        scanf("%u", &bookid);
+
+        // check if Book exist
+        status = isBookPresent(bookid);
+
+        // check if the user has already borrowed that same book before.
+        // user can borrow ONLY ONE BOOK PER USER
+        status = status + isBookIssued(bookid);
+
+        if (status == 2)
+        {
+            printf("\n\t\t\tBook ID : %u is already issued to user : %s.", bookid, u);
+            break; // if the user has borrowed it earlier, we simply print a message and go to main menu.
+        }
+        
+        if(status)
+        {
+            f_book = fopen(BOOK_FILE_NAME,"r"); // opened file in read mode to read file content.
+            if(f_book == NULL)
+            {
+                printf("\n\t\t\tFile is not opened\n");
+                scanf("%c", temp);
+                exit(1);
+            }
+
+            // we read the book details and print the details on screen
+            // then confirm with the user if he wants to take that particular book or not
+            // after confirming,
+            // => we update the Library Register,
+            // => produce the date for returning the book,
+            // => update the book's database as 1 book is taken so book stock will be reduced by 1
+
+            while(!feof(f_book))
+            {
+                // reading book database content.
+                fscanf(f_book, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &bookReading.books_id, bookReading.bookName, bookReading.authorName, &bookReading.book_stock);
+                if(bookReading.books_id == bookid)
+                {
+                    printf("\n\n\t\t\tBook id = %u", bookReading.books_id);
+                    printf("\n\t\t\tBook name = %s", bookReading.bookName);
+                    printf("\n\t\t\tBook authorName = %s", bookReading.authorName);
+                    printf("\n\t\t\tIn Stock = %d", bookReading.book_stock);
+                    flag = 1;
+
+                    // check if the book is less than 3 in quantity and if the user is a student,
+                    // if True, the student user is not allowed to borrow the book. 
+                    if((bookReading.book_stock<3) && (!(strcmp(u_member, "stud"))))
+                    {
+                        printf("\n\n\t\t\t-----------------------------------------");
+                        printf("\n\t\t\tThis book is not available for borrowing.");
+                        printf("\n\t\t\t-----------------------------------------");
+                        flag = 0;
+                    }
+                    fclose(f_book);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // if the entered book is not available in Library
+            printf("\n\t\t\tBook not found. Please enter again.....");
+            fflush(stdin);
+            scanf("%c", &temp);
+            count++;
+        }
+    } while (!status);
+    
+    if(flag)
+    {
+        printf("\n\t\t\t----------------------------------------------------------------------\n");
+        printf("\n\t\t\tConfirm ? (Y/N) : ");
+        fflush(stdin);
+        scanf("%c", &choice);
+        
+        if (toupper(choice) == 'Y')
+        {
+            issue_date = today_date(); //initializing the issue date
+
+            // if book is available in more number then returning date can be increased.
+            if(bookReading.book_stock > 6)
+                period = 2*period;
+            else if(bookReading.book_stock > 12)
+                period = 3*period;
+                
+            return_date = returning_date(issue_date, period);
+
+            // writing the record in the Library Register.
+            fprintf(f_reg_book, "\n%u\t%s\t%02i/%02i/%i\t%02i/%02i/%i", bookReading.books_id, u, issue_date.dd, issue_date.mm, issue_date.yyyy, return_date.dd, return_date.mm, return_date.yyyy);
+
+            // Confirming that the book is issued to user
+            printf("\n\t\t\tBook Issued successfully.....");
+            printf("\n\n\t\t\tPlease note the returning date.....");
+            printf("\n\t\t\tReturning Date\t:\t%02d/%02d/%d", return_date.dd, return_date.mm, return_date.yyyy);
+            book_Issued(bookid);
+        }
+
+        else if (toupper(choice) == 'N')
+        {
+            headMessage("BORROW BOOKS");
+            printf("\n\t\t\tBook Not Issued.");
+        }
+        else
+        {
+            // if values are not valid, nothing is added and we simply go out to Main Menu.
+            headMessage("BORROW BOOKS");
+            printf("\n\t\t\tTry Again.");
+        }
+    }
+
+    fclose(f_reg_book);
+
+    printf("\n\n\t\t\tPress any key to go to main menu.....");
+    fflush(stdin);
+    scanf("%c", &temp);
 }
 
 // Return Book (to do)
@@ -560,7 +936,7 @@ void updateBook()
 
     if(status)
     {
-        // if book exits then we perform following functions.
+        // if book exists then we perform following functions.
         // we will take the necessary details and store them in some varibale
         // then we copy the data from original file to temporary file
         // the book id in original file matches with the book id to be updated,
@@ -708,7 +1084,7 @@ void menu()
             break;
         case 3:
             printf("borrowbooks");
-            //borrowBook();
+            borrowBook();
             break;
         case 4:
             printf("returnbooks");
@@ -783,7 +1159,9 @@ void login()
             {
                 headMessage("LOGIN");
                 printf("Login Success");
+                strcpy(u, login_info.username);
                 strcpy(u_type, login_info.type);
+                strcpy(u_member, login_info.member);
                 L = 0;
                 flag = 1;
                 menu();
