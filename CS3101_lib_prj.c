@@ -13,7 +13,6 @@
 #define MAX_BOOK_NAME 50
 #define MAX_AUTHOR_NAME 50
 #define MAX_USER_NAME 50
-#define MAX_USER_ADDRESS 300
 #define BOOK_FILE_NAME "books_info.txt"
 
 #define REGISTER_FILE_NAME "register_book.txt"
@@ -674,7 +673,7 @@ void borrowBook()
     if(f_reg_book == NULL)
     {
         printf("File is not opened\n");
-        scanf("%c", temp);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -714,7 +713,7 @@ void borrowBook()
             if(f_book == NULL)
             {
                 printf("\n\t\t\tFile is not opened\n");
-                scanf("%c", temp);
+                scanf("%c", &temp);
                 exit(1);
             }
 
@@ -882,7 +881,7 @@ void returnBook()
             if(f_reg_book == NULL)
             {
                 printf("File is not opened\n");
-                scanf("%c", temp);
+                scanf("%c",&temp);
                 exit(1);
             }
 
@@ -1114,7 +1113,7 @@ void addBook()
     {
         // count < 3 means that we have entered all values correctly and are valid.
         headerAddBookPage();
-        fprintf(fp, "%u\t%s\t%s\t%d", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName, addBookInfo.book_stock);
+        fprintf(fp, "%u\t%s\t%s\t%d\n", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName, addBookInfo.book_stock);
         printf("\n\t\t\tRecord added successfully.....");
     }
     else
