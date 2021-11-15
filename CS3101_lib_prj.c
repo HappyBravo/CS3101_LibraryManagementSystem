@@ -117,7 +117,6 @@ void welcomeMessage()
     printf("\n\t\t\t\t        = = = = = = = = = = = = = = = = = = = = = = =");
     printf("\n\t\t\t\t  **-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**\n");
     printf("\n\n\n\t\t\t\t Enter any key to continue.....");
-    //getch();
     scanf("%c", &temp);
 }
 //
@@ -173,14 +172,16 @@ int isBookPresent(int id)
     char bookName[MAX_BOOK_NAME] = {0};
     BookInfo addBookInfo = {0};
     FILE *fp = NULL;
-    int status = 0;
 
     fp = fopen(BOOK_FILE_NAME,"r");
     if(fp == NULL)
     {
-        printf("\n\t\t\tFile is not opened\n");
+        printf("\n\t\t\tError in isBookPresent(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
+
     while(!feof(fp))
     {
         fscanf(fp, "%u\t%[^\t]%*c%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName, &addBookInfo.book_stock);
@@ -189,13 +190,14 @@ int isBookPresent(int id)
         if(addBookInfo.books_id == id)
         {
             present = 1;
+            
+            // if there is no book in stock
             if (addBookInfo.book_stock == 0)
                 present = 2;
             break;
         }
     }
     fclose(fp);
-    
     return present;
 }
 
@@ -209,7 +211,9 @@ int isBookIssued(int book)
     f_checkBookIssued_p = fopen(REGISTER_FILE_NAME, "r");
     if(f_checkBookIssued_p == NULL)
     {
-        printf("\n\t\t\tFile is not opened\n");
+        printf("\n\t\t\tError in isBookIssued(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -217,7 +221,6 @@ int isBookIssued(int book)
     while(!feof(f_checkBookIssued_p))
     {
         fscanf(f_checkBookIssued_p, "%d\t%[^\t]%*c\t%d/%d/%d\t%d/%d/%d\n", &Reg_info.books_id, Reg_info.username, &Reg_info.i_date.dd, &Reg_info.i_date.mm, &Reg_info.i_date.yyyy, &Reg_info.r_date.dd, &Reg_info.r_date.mm, &Reg_info.r_date.yyyy);
-        
         //printf("book : %u\nu_id : %c\nIssue : %02d/%02d/%d\nReturn : %02d/%02d/%d\n", Reg_info.books_id, Reg_info.username, Reg_info.i_date.dd, Reg_info.i_date.mm, Reg_info.i_date.yyyy, Reg_info.r_date.dd, Reg_info.r_date.mm, Reg_info.r_date.yyyy);
         
         if((Reg_info.books_id == book) && (strcmp(Reg_info.username, u) == 0))
@@ -243,7 +246,9 @@ void book_Issued(int book)
     fp = fopen(BOOK_FILE_NAME,"r"); // opened original file in read mode
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in book_Issued(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -251,7 +256,9 @@ void book_Issued(int book)
     if(tmpFp == NULL)
     {
         fclose(fp);
-        printf("File is not opened\n");
+        printf("Error in book_Issued(), tmp File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -281,8 +288,7 @@ void book_Issued(int book)
         fclose(tmpFp);
         remove(BOOK_FILE_NAME);
         rename("tmp.txt", BOOK_FILE_NAME);
-    } 
-
+    }
 }
 
 // printing Borrowed Books on the screen - part A
@@ -295,7 +301,9 @@ char* showBookName(int id)
     fp = fopen(BOOK_FILE_NAME, "r");
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in showBookName(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -310,13 +318,12 @@ char* showBookName(int id)
             return name;
         }
     }
+    fclose(fp);
 }
 
 // printing Borrowed Books on the screen - part B
 void showBorrowedBooks(int list[], int *count)
-//void showBorrowedBooks()
 {
-    //int count = 0;
     FILE *fp = NULL;
     RegisterInfo Reg_info = {0};
 
@@ -324,9 +331,12 @@ void showBorrowedBooks(int list[], int *count)
 
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in showBorrowedBooks(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
+    
     while (!feof(fp))
     {
         fscanf(fp, "%d\t%[^\t]%*c\t%d/%d/%d\t%d/%d/%d\n", &Reg_info.books_id, Reg_info.username, &Reg_info.i_date.dd, &Reg_info.i_date.mm, &Reg_info.i_date.yyyy, &Reg_info.r_date.dd, &Reg_info.r_date.mm, &Reg_info.r_date.yyyy);
@@ -354,7 +364,9 @@ void book_Returned(int book)
     fp = fopen(BOOK_FILE_NAME,"r"); // opened original file in read mode
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in book_Returned(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -362,7 +374,9 @@ void book_Returned(int book)
     if(tmpFp == NULL)
     {
         fclose(fp);
-        printf("File is not opened\n");
+        printf("Erroe in book_Returned(), tmp File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -396,13 +410,20 @@ void book_Returned(int book)
 
 }
 
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //- - - - - - START : Some Date related Functions - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+/*************************************************
+ * 
+ * The date related-functions is based on the assumption 
+ * that the returning period is less than 1 month.
+ * 
+ **************************************************/
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // EXTRA FUNTION ... NO NEED OF IT...
+
 Date cal_date_diff(Date s, Date e)
 {
     //printf("\nStart : %d, %d, %d", s.dd, s.mm, s.yyyy); // checking s
@@ -549,7 +570,9 @@ void searchBooks()
     fp = fopen(BOOK_FILE_NAME,"r");
     if(fp == NULL)
     {
-        printf("\n\t\t\tFile is not opened\n");
+        printf("\n\t\t\tError in searchBooks(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
     headMessage("SEARCH BOOKS");
@@ -565,15 +588,12 @@ void searchBooks()
     while(!feof(fp))
     {
         // -------------------------------------------------//
-
         /*
         fscanf(fp, "%d\n", &addBookInfo.books_id);
         fscanf(fp, "%[^\n]%*c", addBookInfo.bookName);
         fscanf(fp, "%[^\n]%*c", addBookInfo.authorName);
         */
-
         // ---------------------------------------------------// 
-        
         //
         //We can write the above statements in single line.
         //
@@ -608,23 +628,24 @@ void searchBooks()
     printf("\n\n\n\t\t\tPress any key to go to main menu.....");
     fflush(stdin);
     scanf("%c", &temp);
-    //getchar();
 }
 
 // View books function
 void viewBooks()
 {
     int found = 0;
+    int countBook = 1;
     BookInfo addBookInfo = {0};
     FILE *fp = NULL;
-    int countBook = 1;
 
     headMessage("VIEW BOOKS DETAILS");
     
     fp = fopen(BOOK_FILE_NAME, "r"); // opened file in read mode
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in viewbooks(), File is not opened...\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -633,6 +654,7 @@ void viewBooks()
     while(!feof(fp))
     {
         fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName, &addBookInfo.book_stock);
+        
         printf("\n\t\t\t%d.)", countBook);
         printf("\n\t\t\t\tBook id = %u", addBookInfo.books_id);
         printf("\n\t\t\t\tBook name = %s", addBookInfo.bookName);
@@ -672,7 +694,8 @@ void borrowBook()
     f_reg_book = fopen(REGISTER_FILE_NAME, "a"); // opened file in append mode for adding new issues
     if(f_reg_book == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in borrowBooks(), register File is not opened...\n");
+        fflush(stdin);
         scanf("%c", &temp);
         exit(1);
     }
@@ -683,6 +706,7 @@ void borrowBook()
         {
             break;
         }
+
         headMessage("BORROW BOOKS");
 
         printf("\n\t\t\tBook ID NO  = ");
@@ -691,6 +715,7 @@ void borrowBook()
 
         // check if Book exist
         status = isBookPresent(bookid);
+        
         if(status == 2)
         {
             printf("\n\t\t\tThe Book Currently Out of stock...");
@@ -712,7 +737,8 @@ void borrowBook()
             f_book = fopen(BOOK_FILE_NAME,"r"); // opened file in read mode to read file content.
             if(f_book == NULL)
             {
-                printf("\n\t\t\tFile is not opened\n");
+                printf("\n\t\t\tError in borrowBooks, books File is not opened\n");
+                fflush(stdin);
                 scanf("%c", &temp);
                 exit(1);
             }
@@ -788,7 +814,6 @@ void borrowBook()
             printf("\n\t\t\tReturning Date\t:\t%02d/%02d/%d", return_date.dd, return_date.mm, return_date.yyyy);
             book_Issued(bookid);
         }
-
         else if (toupper(choice) == 'N')
         {
             headMessage("BORROW BOOKS");
@@ -858,6 +883,7 @@ void returnBook()
                 break;
             }
         }
+        
         if(!status)
         {
             printf("\n\t\t\tPlease enter correct book id....");
@@ -880,7 +906,7 @@ void returnBook()
             f_reg_book = fopen(REGISTER_FILE_NAME, "r"); // opened file in append mode for adding new issues
             if(f_reg_book == NULL)
             {
-                printf("File is not opened\n");
+                printf("Error in returnBook(), register File is not opened\n");
                 scanf("%c",&temp);
                 exit(1);
             }
@@ -889,7 +915,7 @@ void returnBook()
             if(tmpFp == NULL)
             {
                 fclose(f_reg_book);
-                printf("File is not opened\n");
+                printf("Error in returnBook(), tmp File is not opened\n");
                 exit(1);
             }
             
@@ -907,7 +933,8 @@ void returnBook()
                 {
                     fprintf(tmpFp, "%u\t%s\t%02i/%02i/%i\t%02i/%02i/%i\n", Reg_info.books_id, Reg_info.username, Reg_info.i_date.dd, Reg_info.i_date.mm, Reg_info.i_date.yyyy, Reg_info.r_date.dd, Reg_info.r_date.mm, Reg_info.r_date.yyyy);
                 }
-            } 
+            }
+
             fclose(f_reg_book);
             fclose(tmpFp);
             remove(REGISTER_FILE_NAME);
@@ -927,7 +954,7 @@ void returnBook()
         {
             // if values are not valid, nothing is added and we simply go out to Main Menu.
             headMessage("BORROW BOOKS");
-            printf("\n\t\t\tTry Again.");
+            printf("\n\t\t\tTry Again...");
         }
     }
 
@@ -935,7 +962,7 @@ void returnBook()
     else
     {
         // if the count = 0, means there are no books borrowed by the user.
-        printf("\n\t\t\tYou don't have any borrowed book");
+        printf("\n\t\t\tYou don't have any borrowed book.");
     }
 
     printf("\n\n\t\t\tPress any key to go to main menu.....");
@@ -959,7 +986,9 @@ void deleteBooks()
     fp = fopen(BOOK_FILE_NAME,"r");
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in deleteBooks(), book File is not opened\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -968,7 +997,9 @@ void deleteBooks()
     if(tmpFp == NULL)
     {
         fclose(fp);
-        printf("File is not opened\n");
+        printf("Error in deleteBooks(), tmp File is not opened\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -1017,7 +1048,8 @@ void addBook()
     fp = fopen(BOOK_FILE_NAME, "a"); // opened file in append mode for adding
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in addBook(), File is not opened\n");
+
         exit(1);
     }
 
@@ -1077,8 +1109,7 @@ void addBook()
         {
             count = 0;
         }
-    }
-    while(!status);
+    }while(!status);
 
     do
     {
@@ -1106,8 +1137,7 @@ void addBook()
             scanf("%d", &addBookInfo.book_stock);
             count = 0;
         }
-    }
-    while(!status);
+    }while(!status);
     
     if (count<3)
     {
@@ -1145,7 +1175,9 @@ void updateBook()
     fp = fopen(BOOK_FILE_NAME,"r"); // opened original file in read mode
     if(fp == NULL)
     {
-        printf("File is not opened\n");
+        printf("Error in updateBook(), book File is not opened\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -1153,7 +1185,9 @@ void updateBook()
     if(tmpFp == NULL)
     {
         fclose(fp);
-        printf("File is not opened\n");
+        printf("Error in updateBook(), tmp File is not opened\n");
+        fflush(stdin);
+        scanf("%c", &temp);
         exit(1);
     }
 
@@ -1171,6 +1205,7 @@ void updateBook()
 
         // check if Book already exist
         status = isBookPresent(updateBookInfo.books_id);
+        
         if(!status)
         {
             printf("\n\t\t\tBook does not exist. Please enter correct Book ID.");
@@ -1262,6 +1297,7 @@ void updateBook()
     }
 
     headMessage("UPDATE BOOK");
+    
     if (found)
     {
         printf("\n\t\t\tRecord updated successfully.....");
@@ -1280,7 +1316,6 @@ void updateBook()
     printf("\n\n\t\t\tPress any key to go to main menu.....");
     fflush(stdin);
     scanf("%c", &temp);
-
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - -*/
@@ -1296,6 +1331,7 @@ void menu()
 {
     int choice = 0;
     int check = strcmp(u_type, "admin"); // check if user is admin or not
+    
     do
     {
         headMessage("MAIN MENU");
@@ -1364,8 +1400,7 @@ void menu()
             fflush(stdin);
             scanf("%c", &temp);
         }
-    }
-    while(choice != 0);   //if choice = 0, we exit, else we reprint the Main Menu page
+    }while(choice != 0);   //if choice = 0, we exit, else we reprint the Main Menu page
 }
 //
 /* - - - - Main Menu page : END - - - - - */
@@ -1398,12 +1433,15 @@ void login()
         fp = fopen(LOGIN_DB, "r"); // opened file in read mode
         if(fp == NULL)
             {
-                printf("File is not opened\n");
+                printf("Error in login(), File is not opened\n");
+                fflush(stdin);
+                scanf("%c", &temp);
                 exit(1);
             }
         // we will read the data in file and check if the data matches with entered data.
         // if matched, we go to Main Menu,
         // else try 3 times after which we close the program.
+        
         while(!feof(fp))
         {
             fscanf(fp, "%s %s %s %s", login_info.username, login_info.password, login_info.type, login_info.member);
@@ -1417,6 +1455,7 @@ void login()
                 strcpy(u_member, login_info.member);
                 L = 0;
                 flag = 1;
+                fclose(fp);
                 menu();
                 break;
             }
@@ -1440,12 +1479,14 @@ void login()
     {
         headMessage("LOGIN FAILED");
         printf("\n\t\t\t\tSorry, Unknown User.");
+
         printf("\n\n\n\t\t\t\t Enter any key to continue.....");
         fflush(stdin);
         scanf("%c",&temp);
         system("cls");
     }
 }
+
 //
 /* - - - - Login-password page : END - - - - - */
 //
