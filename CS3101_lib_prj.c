@@ -9,14 +9,12 @@
 #define MAX_SIZE_PASSWORD  20
 #define MAX_SIZE_USER_TYPE 6
 #define LOGIN_DB "login_info.txt"
-//#define FILE_HEADER_SIZE sizeof(login_FileHeader)
 
 #define MAX_BOOK_NAME 50
 #define MAX_AUTHOR_NAME 50
 #define MAX_USER_NAME 50
 #define MAX_USER_ADDRESS 300
 #define BOOK_FILE_NAME "books_info.txt"
-//#define BOOK_FILE_HEADER_SIZE sizeof("books_info.txt")
 
 #define REGISTER_FILE_NAME "register_book.txt"
 
@@ -286,6 +284,7 @@ void book_Issued(int book)
 
 }
 
+// printing Borrowed Books on the screen - part A
 char* showBookName(int id)
 {
     BookInfo searchBookInfo = {0};
@@ -312,6 +311,7 @@ char* showBookName(int id)
     }
 }
 
+// printing Borrowed Books on the screen - part B
 void showBorrowedBooks(int list[], int *count)
 //void showBorrowedBooks()
 {
@@ -341,6 +341,7 @@ void showBorrowedBooks(int list[], int *count)
     
 }
 
+// update book stock if the book is returned by a user
 void book_Returned(int book)
 {
     int found = 0;
@@ -396,9 +397,8 @@ void book_Returned(int book)
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//- - - - - - START of Some Date related Functions - - - - - - -
+//- - - - - - START : Some Date related Functions - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // EXTRA FUNTION ... NO NEED OF IT...
@@ -522,7 +522,7 @@ Date today_date()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//- - - - - - - END of Some Date related Functions - - - - - - -
+//- - - - - - - END : Some Date related Functions - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /* - - - - - - - - - - - - - - - - - - - - - -*/
@@ -651,7 +651,7 @@ void viewBooks()
     scanf("%c", &temp);
 }
 
-// Borrow Book
+// Borrow Book function
 void borrowBook()
 {
     int count = 0;
@@ -803,7 +803,7 @@ void borrowBook()
     scanf("%c", &temp);
 }
 
-// Return Book
+// Return Book function
 void returnBook()
 {
     int count = 0;
@@ -937,7 +937,7 @@ void returnBook()
     scanf("%c", &temp);
 }
 
-// Delete function
+// Delete Book function
 void deleteBooks()
 {
     int found = 0;
@@ -1000,7 +1000,7 @@ void deleteBooks()
     scanf("%c", &temp);
 }
 
-// Add book in list
+// Add book funtion
 void addBook()
 {
     int count = 0;
@@ -1123,7 +1123,7 @@ void addBook()
     scanf("%c", &temp);
 }
 
-// Update book information
+// Update book information function
 void updateBook()
 {
     int found = 0;
