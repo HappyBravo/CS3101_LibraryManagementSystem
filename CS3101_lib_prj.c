@@ -190,6 +190,8 @@ int isBookPresent(int id)
         if(addBookInfo.books_id == id)
         {
             present = 1;
+            if (addBookInfo.book_stock == 0)
+                present = 2;
             break;
         }
     }
@@ -690,6 +692,11 @@ void borrowBook()
 
         // check if Book exist
         status = isBookPresent(bookid);
+        if(status == 2)
+        {
+            printf("\n\t\t\tThe Book Currently Out of stock...");
+            break;
+        }
 
         // check if the user has already borrowed that same book before.
         // user can borrow ONLY ONE BOOK PER USER
