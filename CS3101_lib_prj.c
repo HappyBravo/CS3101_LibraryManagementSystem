@@ -286,7 +286,122 @@ void book_Issued(int book)
 
 }
 
-// Some Date related Functions
+char* showBookName(int id)
+{
+    BookInfo searchBookInfo = {0};
+    FILE *fp = NULL;
+    char *name;
+
+    fp = fopen(BOOK_FILE_NAME, "r");
+    if(fp == NULL)
+    {
+        printf("File is not opened\n");
+        exit(1);
+    }
+
+    while (!feof(fp))
+    {
+        fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &searchBookInfo.books_id, searchBookInfo.bookName, searchBookInfo.authorName, &searchBookInfo.book_stock);
+
+        if(searchBookInfo.books_id == id)
+        {
+            fclose(fp);
+            name = searchBookInfo.bookName;
+            return name;
+        }
+    }
+}
+
+void showBorrowedBooks(int list[], int *count)
+//void showBorrowedBooks()
+{
+    //int count = 0;
+    FILE *fp = NULL;
+    RegisterInfo Reg_info = {0};
+
+    fp = fopen(REGISTER_FILE_NAME, "r");
+
+    if(fp == NULL)
+    {
+        printf("File is not opened\n");
+        exit(1);
+    }
+    while (!feof(fp))
+    {
+        fscanf(fp, "%d\t%[^\t]%*c\t%d/%d/%d\t%d/%d/%d\n", &Reg_info.books_id, Reg_info.username, &Reg_info.i_date.dd, &Reg_info.i_date.mm, &Reg_info.i_date.yyyy, &Reg_info.r_date.dd, &Reg_info.r_date.mm, &Reg_info.r_date.yyyy);
+        
+        if(!strcmp(Reg_info.username, u))
+        {
+            list[*count] = Reg_info.books_id;
+            printf("\n\t\t\t%d.\t-\t%d\t-\t%s", (1+(*count)++),Reg_info.books_id, showBookName(Reg_info.books_id));
+        }   
+    }
+    printf("\n\t\t\t----------------------------------------------------------------------\n");
+    fclose(fp);
+    
+}
+
+void book_Returned(int book)
+{
+    int found = 0;
+    BookInfo addBookInfo = {0};
+
+    FILE *fp = NULL; // original file
+    FILE *tmpFp = NULL; // temporary file
+
+    fp = fopen(BOOK_FILE_NAME,"r"); // opened original file in read mode
+    if(fp == NULL)
+    {
+        printf("File is not opened\n");
+        exit(1);
+    }
+
+    tmpFp = fopen("tmp.txt","w"); // made a temporary file in write mode
+    if(tmpFp == NULL)
+    {
+        fclose(fp);
+        printf("File is not opened\n");
+        exit(1);
+    }
+
+    while(!feof(fp))
+        {
+            // we will take the necessary details and store them in some varibale
+            // then we copy the data from original file to temporary file
+            // if the book id in original file matches with the book id to be RETURNED,
+            // we INCREASE the stock by 1 as 1 book is being returned by a user,
+            // then, we copy the data stored in the variable to the temporary file
+            // after copying, we delete original file, and rename it.
+
+            fscanf(fp, "%u\t%[^\t]%*c%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName, addBookInfo.authorName, &addBookInfo.book_stock);
+
+            if(addBookInfo.books_id == book)
+            {
+                ++addBookInfo.book_stock;
+                found = 1;
+            }
+
+            fprintf(tmpFp, "%u\t%s\t%s\t%d\n", addBookInfo.books_id, addBookInfo.bookName, addBookInfo.authorName, addBookInfo.book_stock);
+        }
+    if (found)
+    {
+        //printf("\n\t\t\tRecord updated successfully.....");
+        fclose(fp);
+        fclose(tmpFp);
+        remove(BOOK_FILE_NAME);
+        rename("tmp.txt", BOOK_FILE_NAME);
+    } 
+
+}
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - START of Some Date related Functions - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+// EXTRA FUNTION ... NO NEED OF IT...
 Date cal_date_diff(Date s, Date e)
 {
     //printf("\nStart : %d, %d, %d", s.dd, s.mm, s.yyyy); // checking s
@@ -340,6 +455,7 @@ Date cal_date_diff(Date s, Date e)
 
     return diff;
 }
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 int maxDateOfMonth(int m, int y)
 {
@@ -405,6 +521,9 @@ Date today_date()
     return start_date;
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - END of Some Date related Functions - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 /* - - - - - - - - - - - - - - - - - - - - - -*/
 /* - - - - - HELPING FUNCTIONS : END - - - - -*/
@@ -684,10 +803,138 @@ void borrowBook()
     scanf("%c", &temp);
 }
 
-// Return Book (to do)
+// Return Book
 void returnBook()
 {
-    /* work in progress */
+    int count = 0;
+    int status = 0;
+    int flag = 0;
+    char choice = 'N';
+    unsigned int bookid = 0;
+    int borrowedbookslist[100];
+
+    RegisterInfo Reg_info = {0};
+
+    FILE *f_reg_book = NULL;
+    FILE *tmpFp = NULL;
+
+    headMessage("RETURN BOOKS");
+
+    // we read the Library Register details 
+    // and print the book taked by the user
+    // Asks user which book he wants to return
+    // then confirm with the user if he wants to return or not
+    // after confirming,
+    // => we update the Library Register,
+    // => update the book's database as 1 book is returned so book stock will be increased by 1
+    
+    showBorrowedBooks(borrowedbookslist, &count);
+    
+    if(count)
+    {
+    do
+    {
+        if (flag>2)
+        {
+            break;
+        }
+
+        printf("\n\t\t\tEnter Book ID to return = ");
+        fflush(stdin);
+        scanf("%d", &bookid);
+
+        // check if Book exist in the borrowed list.
+        for(int i = 0 ; i<count; i++)
+        {
+            if(bookid == borrowedbookslist[i])
+            {
+                status = 1;
+                break;
+            }
+        }
+        if(!status)
+        {
+            printf("\n\t\t\tPlease enter correct book id....");
+            fflush(stdin);
+            scanf("%c", &temp);
+            flag++;
+        
+        }
+    }while(!status);
+        
+    if(status)
+    {
+        printf("\n\t\t\t----------------------------------------------------------------------\n");
+        printf("\n\t\t\tConfirm Return ? (Y/N) : ");
+        fflush(stdin);
+        scanf("%c", &choice);
+
+        if (toupper(choice) == 'Y')
+        {
+            f_reg_book = fopen(REGISTER_FILE_NAME, "r"); // opened file in append mode for adding new issues
+            if(f_reg_book == NULL)
+            {
+                printf("File is not opened\n");
+                scanf("%c", temp);
+                exit(1);
+            }
+
+            tmpFp = fopen("tmp.txt", "w");
+            if(tmpFp == NULL)
+            {
+                fclose(f_reg_book);
+                printf("File is not opened\n");
+                exit(1);
+            }
+            
+            while(!feof(f_reg_book))
+            {
+                // reading the contents if Library register.
+                fscanf(f_reg_book, "%d\t%[^\t]%*c\t%d/%d/%d\t%d/%d/%d\n", &Reg_info.books_id, Reg_info.username, &Reg_info.i_date.dd, &Reg_info.i_date.mm, &Reg_info.i_date.yyyy, &Reg_info.r_date.dd, &Reg_info.r_date.mm, &Reg_info.r_date.yyyy);
+
+                if (bookid == Reg_info.books_id && (strcmp(u, Reg_info.username)==0))
+                {
+                    // if the username and book id matches, we skip that record
+                    continue;
+                }
+                else
+                {
+                    fprintf(tmpFp, "%u\t%s\t%02i/%02i/%i\t%02i/%02i/%i\n", Reg_info.books_id, Reg_info.username, Reg_info.i_date.dd, Reg_info.i_date.mm, Reg_info.i_date.yyyy, Reg_info.r_date.dd, Reg_info.r_date.mm, Reg_info.r_date.yyyy);
+                }
+            } 
+            fclose(f_reg_book);
+            fclose(tmpFp);
+            remove(REGISTER_FILE_NAME);
+            rename("tmp.txt", REGISTER_FILE_NAME);
+
+            // after returning a book, the book stock must be increased by 1.
+            book_Returned(bookid);
+
+            printf("\n\n\t\t\tBook Returned Successfully.");
+        }
+        else if (toupper(choice) == 'N')
+        {
+            headMessage("RETURN BOOKS");
+            printf("\n\t\t\tBook Not Returned.");
+        }
+        else
+        {
+            // if values are not valid, nothing is added and we simply go out to Main Menu.
+            headMessage("BORROW BOOKS");
+            printf("\n\t\t\tTry Again.");
+        }
+    }
+
+    }
+    else
+    {
+        // if the count = 0, means there are no books borrowed by the user.
+        printf("\n\t\t\tYou don't have any borrowed book");
+    }
+
+    printf("\n\n\t\t\tPress any key to go to main menu.....");
+    fflush(stdin);
+    scanf("%c", &temp);
 }
 
 // Delete function
@@ -1088,7 +1335,7 @@ void menu()
             break;
         case 4:
             printf("returnbooks");
-            //returnBook();
+            returnBook();
             break;
         case 5:
             printf("addbooks");
