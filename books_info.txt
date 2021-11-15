@@ -1,7 +1,8 @@
 23456	XYZ building	Mr AB	5
 34567	Harry Potter	J K Rowling	2
-12347	Story of my life	Hellen Keller	3
-12345	ABC guide	Hap	5
-12346	Kite	Mr X	10
+12347	Story of my Life	Hellen Keller	5
+12345	ABC Guide	XYZ	5
+12346	Kite	Mr X	9
 12367	Let Us C	CS	20
-12398	Harry Potter	J K Rolling	6
+12398	Harry Potter	J K Rolling	4
+12490	Testing Book	Testing	5
