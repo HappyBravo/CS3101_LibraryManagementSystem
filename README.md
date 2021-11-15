@@ -12,15 +12,22 @@ It's a basic Library Management System written in <img src="https://raw.githubus
     <li><h4>By Admin</h4></li>
         <ul>
             <li>Add Books</li>
+                <ul><li>For adding new books in the book database.</li></ul>
             <li>Delete Books</li>
+                <ul><li>For removing a book from the book database.</li></ul>
             <li>Update Books' details</li>
+                <ul><li>For updating the details of the book in the book database.</li></ul>
         </ul>
     <li><h4>By User</h4></li>
     <ul>
-        <li>View Available Books</li>
+        <li>View Books</li>
+        <ul><li>For showing the available books in the library.</li></ul>
         <li>Search Books</li>
+        <ul><li>For searching the entered book name in the book database.</li></ul>
         <li>Borrow Books</li>
+        <ul><li>For Borrowing Books from Library.</li></ul>
         <li>Return Books</li>
+        <ul><li>for returning borrowed books.</li></ul>
     </ul>
 </ul>
 <br>
