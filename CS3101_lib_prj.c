@@ -110,6 +110,7 @@ void headMessage(const char *message)
 //
 void welcomeMessage()
 {
+    system("cls");
     printf("\n\n\n\n");
     printf("\n\t\t\t\t  **-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**");
     printf("\n\t\t\t\t        = = = = = = = = = = = = = = = = = = = = = = =");
@@ -872,6 +873,7 @@ void viewBooks()
 {
     int found = 0;
     int countBook = 1;
+    int pageSize = 5;
     BookInfo addBookInfo = {0};
     FILE *fp = NULL;
 
@@ -887,9 +889,19 @@ void viewBooks()
     }
 
     // we will simply read the content of file and print them in formatted order.
-
     while(!feof(fp))
     {
+        if(((countBook-1)%pageSize == 0) && (countBook != 1))
+        {
+            // to view the list in paged format,
+            // else if there is large list, then only last few books will be visible.
+
+            printf("\n\n\t\t\tPRESS ENTER FOR NEXT PAGE...");
+            fflush(stdin);
+            scanf("%c", &temp);
+            headMessage("VIEW BOOKS DETAILS");
+
+        }
         fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &addBookInfo.books_id,addBookInfo.bookName,addBookInfo.authorName, &addBookInfo.book_stock);
         
         printf("\n\t\t\t%d.)", countBook);
