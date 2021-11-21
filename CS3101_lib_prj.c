@@ -133,6 +133,86 @@ void welcomeMessage()
 // - an entry is correct or not. - - - - - - - - - //
 // - There may be some other stuffs too. - - - - - //
 
+// - - - - - - - - - - - - - - - - - - - - -//
+// - - - - - START : free Search - - - - - -//
+// - - - - - - - - - - - - - - - - - - - - -//
+
+// makes the input to lower case
+// check if the input matches with any sub-string in the Book Name or Author Name field
+
+// convert given string to lower case string
+void lower(char* inputString)
+{
+    int count = 0;
+    while (*(inputString+count) != '\0')
+    {
+        if(*(inputString+count)>='A' && *(inputString+count)<='Z')
+        {
+            *(inputString+count)=*(inputString+count) + 32;
+        }
+        ++count;
+    }
+}
+
+// checking if input string is present in sub-string of Book Name or Book Auther Name
+int checkName(char* inputString, char* nameString)
+{
+    int count1 = 0;
+    int count2 = 0;
+    int flag = 0;
+
+    while (*(nameString + count1) != '\0')
+        count1++;    
+    while (*(inputString + count2) != '\0')
+        count2++;
+
+    for (int i = 0; i <= count1 - count2; i++)
+    {
+        for (int j = i; j < i + count2; j++)
+        {
+            // checking the substrings
+            flag = 1;
+            if (*(nameString+j) != *(inputString+(j - i)))
+            {
+                flag = 0;
+                break;
+            }
+        }
+        if (flag == 1)
+            break;
+    }
+    return flag;
+}
+
+// free search
+int freeSearch(char *input, char* bookName, char *bookAuthor)
+{
+    lower(input);
+    lower(bookName);
+    lower(bookAuthor);
+    return (checkName(input, bookName) + checkName(input, bookAuthor));
+}
+// - - - - - - - - - - - - - - - - - - - - -//
+// - - - - - - END : free Search - - - - - -//
+// - - - - - - - - - - - - - - - - - - - - -//
+
+
+// Menu inside search()
+int search_menu()
+{
+    int choice = 0;
+
+    headMessage("SEARCH BOOKS");
+    printf("\n\n\n\t\t\t1. Search by Book ID");
+    printf("\n\t\t\t2. Search by Name");
+    printf("\n\t\t\t3. Search by Author Name");
+    printf("\n\t\t\t4. Free Search");
+    printf("\n\t\t\t0. Exit");
+    printf("\n\n\n\t\t\tEnter choice => ");
+    scanf("%d",&choice);
+    return choice;
+}
+
 // Checking valid Entry
 int isNameValid(const char *name)
 {
@@ -562,7 +642,15 @@ Date today_date()
 void searchBooks()
 {
     int found = 0;
+    int choice = 0;
     char bookName[MAX_BOOK_NAME] = {0};
+    char bookAuthor[MAX_AUTHOR_NAME] = {0};
+    char b_aName[MAX_AUTHOR_NAME] = {0};
+    unsigned int bookID = 0;
+    int flag = 1;
+    int i = 0;
+    int count = 0;
+
     BookInfo searchBookInfo = {0};
     FILE *fp = NULL;
     int status = 0;
@@ -575,53 +663,202 @@ void searchBooks()
         scanf("%c", &temp);
         exit(1);
     }
-    headMessage("SEARCH BOOKS");
+    
+    do{
+        if (i > 3)
+        {
+            break;
+        }
+        choice = search_menu();
+        headMessage("SEARCH BOOKS");
 
+        switch (choice)
+        {
+        case 1:
+            printf("\n\n\t\t\tEnter Book ID to search : ");
+            fflush(stdin);
+            scanf("%d", &bookID);
+            flag = 1;
+            break;
+        
+        case 2:
+            do
+            {
+                if (count>3)
+                {
+                    break;
+                }
+                printf("\n\n\t\t\tEnter Book Name to search : ");
+                fflush(stdin);
+                scanf("%[^\n]%*c", bookName);
+                flag = 1;
+
+                status = isNameValid(bookName);
+                if (!status)
+                {
+                    printf("\n\t\t\tName contain invalid character. Please enter again.....");
+                    count++;
+                }
+                else
+                {
+                    count = 0;
+                }
+            }while(!status);
+            break;
+        case 3:
+        do
+            {
+                if (count>3)
+                {
+                    break;
+                }
+                printf("\n\n\t\t\tEnter Book Author Name to search : ");
+                fflush(stdin);
+                scanf("%[^\n]%*c", bookAuthor);
+                flag = 1;
+
+                status = isNameValid(bookName);
+                if (!status)
+                {
+                    printf("\n\t\t\tName contain invalid character. Please enter again.....");
+                    count++;
+                }
+                else
+                {
+                    count = 0;
+                }
+            }while(!status);
+            
+            break;
+        case 4:
+            do
+            {
+                if (count>3)
+                {
+                    break;
+                }
+                printf("\n\n\t\t\tEnter Book/Author Name to search : ");
+                fflush(stdin);
+                scanf("%[^\n]%*c", b_aName);
+                flag = 1;
+
+                status = isNameValid(b_aName);
+                if (!status)
+                {
+                    printf("\n\t\t\tName contain invalid character. Please enter again.....");
+                    count++;
+                }
+                else
+                {
+                    count = 0;
+                }
+            }while(!status);
+            break;
+        case 0:
+            flag = 0;
+            break;
+        default:
+            printf("\n\n\n\t\t\tINVALID INPUT!!! Try again...");
+            fflush(stdin);
+            scanf("%c", &temp);
+            flag = 0;
+            break;
+        }
+        ++i;
+    }while((choice!=0) && (flag != 1));
+    // } while((choice != 0)&&(i < 3));
+    
+    /*
     printf("\n\n\t\t\tEnter Book Name to search : ");
     fflush(stdin);
     scanf("%[^\n]%*c", bookName);
+    */
 
     // we will read the file and store the data in some variable
     // and check if any Book Name matches with the entered Book Name
     // if matched, we print the details stored in variable and return to Main Menu.
 
-    while(!feof(fp))
+    if (flag)
     {
-        // -------------------------------------------------//
-        /*
-        fscanf(fp, "%d\n", &addBookInfo.books_id);
-        fscanf(fp, "%[^\n]%*c", addBookInfo.bookName);
-        fscanf(fp, "%[^\n]%*c", addBookInfo.authorName);
-        */
-        // ---------------------------------------------------// 
-        //
-        //We can write the above statements in single line.
-        //
-        fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &searchBookInfo.books_id, searchBookInfo.bookName, searchBookInfo.authorName, &searchBookInfo.book_stock);
-
-        if(!strcmp(searchBookInfo.bookName, bookName))
+        headMessage("SEARCH BOOKS");
+        i = 0;
+        while(!feof(fp))
         {
-            found = 1;
-            break;
-        }
-    }
-    if(found)
-    {
-        printf("\n\t\t\tBook id = %u", searchBookInfo.books_id);
-        printf("\n\t\t\tBook name = %s", searchBookInfo.bookName);
-        printf("\n\t\t\tBook authorName = %s", searchBookInfo.authorName);
-        printf("\n\t\t\tIn Stock = %d", searchBookInfo.book_stock);
+            found = 0;
+            // -------------------------------------------------//
+            /*
+            fscanf(fp, "%d\n", &addBookInfo.books_id);
+            fscanf(fp, "%[^\n]%*c", addBookInfo.bookName);
+            fscanf(fp, "%[^\n]%*c", addBookInfo.authorName);
+            */
+            // ---------------------------------------------------// 
+            //
+            //We can write the above statements in single line.
+            //
+            fscanf(fp, "%u\t%[^\t]%*c\t%[^\t]%*c\t%d\n", &searchBookInfo.books_id, searchBookInfo.bookName, searchBookInfo.authorName, &searchBookInfo.book_stock);
 
-        if((searchBookInfo.book_stock<3) && (!(strcmp(u_member, "stud"))))
-        {
-            printf("\n\n\t\t\t-----------------------------------------");
-            printf("\n\t\t\tThis book is not available for borrowing.");
-            printf("\n\t\t\t-----------------------------------------");
+            if (choice == 1)
+            {
+                if(bookID == searchBookInfo.books_id)
+                {
+                    found++;
+                    i++;
+                    //break;
+                }
+            }
+            else if (choice == 2)
+            {
+                if(!strcmp(searchBookInfo.bookName, bookName))
+                {
+                    found++;
+                    i++;
+                    //break;
+                }
+            }
+            else if(choice == 3)
+            {
+                if(!strcmp(searchBookInfo.authorName, bookAuthor))
+                {
+                    found++;
+                    i++;
+                    //break;
+                }
+            }
+            else if(choice == 4)
+            {
+                char tempBookName[MAX_BOOK_NAME];
+                strcpy(tempBookName, searchBookInfo.bookName);
+                char tempAuthorName[MAX_AUTHOR_NAME];
+                strcpy(tempAuthorName, searchBookInfo.authorName);
+                if(freeSearch(b_aName, tempBookName, tempAuthorName))
+                {
+                    found++;
+                    i++;
+                }
+            }
+            if(found)
+            {
+                printf("\n\n\t\t\t%d.)", i);
+                printf("\n\t\t\t\tBook id = %u", searchBookInfo.books_id);
+                printf("\n\t\t\t\tBook name = %s", searchBookInfo.bookName);
+                printf("\n\t\t\t\tBook authorName = %s", searchBookInfo.authorName);
+                printf("\n\t\t\t\tIn Stock = %d", searchBookInfo.book_stock);
+
+                if((searchBookInfo.book_stock<3) && (!(strcmp(u_member, "stud"))))
+                {
+                    printf("\n\n\t\t\t-----------------------------------------");
+                    printf("\n\t\t\tThis book is not available for borrowing.");
+                    printf("\n\t\t\t-----------------------------------------");
+                }
+            }
+            
         }
-    }
-    else
-    {
-        printf("\n\t\t\tNo Record");
+        if(!(found + i))
+            {
+                printf("\n\t\t\tNo Record");
+            }
+
+        
     }
 
     fclose(fp);
