@@ -370,6 +370,8 @@ void book_Issued(int book)
         remove(BOOK_FILE_NAME);
         rename("tmp.txt", BOOK_FILE_NAME);
     }
+    fclose(fp);
+    fclose(tmpFp);
 }
 
 // printing Borrowed Books on the screen - part A
@@ -488,6 +490,8 @@ void book_Returned(int book)
         remove(BOOK_FILE_NAME);
         rename("tmp.txt", BOOK_FILE_NAME);
     } 
+    fclose(fp);
+    fclose(tmpFp);
 
 }
 
