@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <time.h>
 
+#include "thank.c"
 
 #define MAX_SIZE_USER_NAME 30
 #define MAX_SIZE_PASSWORD  20
@@ -204,11 +205,11 @@ int search_menu()
     int choice = 0;
 
     headMessage("SEARCH BOOKS");
-    printf("\n\n\n\t\t\t1. Search by Book ID");
-    printf("\n\t\t\t2. Search by Name");
-    printf("\n\t\t\t3. Search by Author Name");
-    printf("\n\t\t\t4. Free Search");
-    printf("\n\t\t\t0. Exit");
+    printf("\n\n\n\t\t\t[1] Search by Book ID");
+    printf("\n\t\t\t[2] Search by Name");
+    printf("\n\t\t\t[3] Search by Author Name");
+    printf("\n\t\t\t[4] Free Search");
+    printf("\n\t\t\t[0] Exit");
     printf("\n\n\n\t\t\tEnter choice => ");
     scanf("%d",&choice);
     return choice;
@@ -1588,19 +1589,19 @@ void menu()
     do
     {
         headMessage("MAIN MENU");
-        printf("\n\n\n\t\t\t1.Search Books");
-        printf("\n\t\t\t2.View Books");
-        printf("\n\t\t\t3.Borrow Book");
-        printf("\n\t\t\t4.Return Book");
+        printf("\n\n\n\t\t\t[1] Search Books");
+        printf("\n\t\t\t[2] View Books");
+        printf("\n\t\t\t[3] Borrow Book");
+        printf("\n\t\t\t[4] Return Book");
 
         if(!(check))
         {
             // only admin can do these operations
-            printf("\n\t\t\t5.Add Book");
-            printf("\n\t\t\t6.Delete Book");
-            printf("\n\t\t\t7.Update Book");
+            printf("\n\t\t\t[5] Add Book");
+            printf("\n\t\t\t[6] Delete Book");
+            printf("\n\t\t\t[7] Update Book");
         }
-        printf("\n\t\t\t0.Exit");
+        printf("\n\t\t\t[0] Exit");
         printf("\n\n\n\t\t\tEnter choice => ");
         scanf("%d",&choice);
 
@@ -1645,7 +1646,11 @@ void menu()
             updateBook();
             break;
         case 0:
-            printf("\n\n\n\t\t\t\tThank you!!!\n\n\n\n\n");
+            //printf("\n\n\n\t\t\t\tThank you!!!\n\n\n\n\n");
+            
+            system("cls");
+            //headMessage("EXIT");
+            thankYouMessage();
             exit(1);
             break;
         default:
