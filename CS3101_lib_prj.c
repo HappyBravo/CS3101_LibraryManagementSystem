@@ -1649,7 +1649,7 @@ void menu()
             //printf("\n\n\n\t\t\t\tThank you!!!\n\n\n\n\n");
             
             system("cls");
-            //headMessage("EXIT");
+            headMessage("EXIT");
             thankYouMessage();
             exit(1);
             break;
